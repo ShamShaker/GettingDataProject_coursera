@@ -1,5 +1,9 @@
 library(tidyverse)
 
+### Set the working directory in the next line
+
+setwd("THIS NEEDS TO BE UPDATED")
+
 ### context data---------------------
 
 ###create data frame for matching activity codes with activity names
@@ -108,6 +112,10 @@ mean.subject.activity <- all.mean.and.sd.data %>%
   group_by(subject, activity.type.name) %>%
   dplyr::select(-c(data.type, activity.type.code)) %>%
   summarize_all(mean)
+
+write.table(mean.subject.activity, 
+            "MeanSubjectActivity.txt", 
+            row.name=FALSE)
 
 
 

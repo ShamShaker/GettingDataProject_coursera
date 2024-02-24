@@ -90,6 +90,10 @@ Jorge L. Reyes-Ortiz, Alessandro Ghio, Luca Oneto, Davide Anguita. November 2012
 
     library(tidyverse)
 
+### Set the working directory in the next line
+
+    setwd("THIS NEEDS TO BE UPDATED")
+
 ### context data---------------------
 
 ###create data frame for matching activity codes with activity names
