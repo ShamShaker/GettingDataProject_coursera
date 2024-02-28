@@ -2,7 +2,7 @@ library(tidyverse)
 
 ### Set the working directory in the next line
 
-setwd("THIS NEEDS TO BE UPDATED")
+setwd("C:/Users/BusinessTim/Desktop/desktop files/Coursera/Course3/finalProject/GettingDataProject_coursera")
 
 ### context data---------------------
 
@@ -97,14 +97,11 @@ compiled.test.data <- read_table("UCI HAR Dataset/test/X_test.txt",
   dplyr::select(data.type, subject, activity.type.code, activity.type.name, 
                 tBodyAccmeanX:fBodyBodyGyroJerkMagstd)
 
-
-
 ### compiling training and test data
 
 ## bind the test and train data
 
 all.mean.and.sd.data<-bind_rows(compiled.test.data, compiled.train.data) 
-
 
 ### create summary means for each subject per activity (and ignoring training/test status)
 
@@ -116,6 +113,8 @@ mean.subject.activity <- all.mean.and.sd.data %>%
 write.table(mean.subject.activity, 
             "MeanSubjectActivity.txt", 
             row.name=FALSE)
+
+
 
 
 
