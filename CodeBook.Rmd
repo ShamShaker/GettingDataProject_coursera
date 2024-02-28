@@ -9,203 +9,218 @@ This code takes the raw-ish files available here:
 https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
   
 
-The original authors have already provided a read-me describing these data, but here it is again, just incase it has been misplaced:
+The original authors have already provided a read-me describing these data (inside the above zip file), but I made some additions to help whoever might look at this data again:
 
-==================================================================
-Human Activity Recognition Using Smartphones Dataset
-Version 1.0
-==================================================================
+These data were provided by: 
+
 Jorge L. Reyes-Ortiz, Davide Anguita, Alessandro Ghio, Luca Oneto.
 Smartlab - Non Linear Complex Systems Laboratory
 DITEN - Università degli Studi di Genova.
 Via Opera Pia 11A, I-16145, Genoa, Italy.
 activityrecognition@smartlab.ws
 www.smartlab.ws
-==================================================================
 
-The experiments have been carried out with a group of 30 volunteers within an age bracket of 19-48 years. Each person performed six activities (WALKING, WALKING_UPSTAIRS, WALKING_DOWNSTAIRS, SITTING, STANDING, LAYING) wearing a smartphone (Samsung Galaxy S II) on the waist. Using its embedded accelerometer and gyroscope, we captured 3-axial linear acceleration and 3-axial angular velocity at a constant rate of 50Hz. The experiments have been video-recorded to label the data manually. The obtained dataset has been randomly partitioned into two sets, where 70% of the volunteers was selected for generating the training data and 30% the test data. 
+The data were also used in this publication:
 
-The sensor signals (accelerometer and gyroscope) were pre-processed by applying noise filters and then sampled in fixed-width sliding windows of 2.56 sec and 50% overlap (128 readings/window). The sensor acceleration signal, which has gravitational and body motion components, was separated using a Butterworth low-pass filter into body acceleration and gravity. The gravitational force is assumed to have only low frequency components, therefore a filter with 0.3 Hz cutoff frequency was used. From each window, a vector of features was obtained by calculating variables from the time and frequency domain. See 'features_info.txt' for more details. 
+Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
+
+# So each participant in the study have provided their data, but it took way too long to figure out what was what. Below is the description provided by the authors (with my annotations marked with # )
 
 For each record it is provided:
 ======================================
 
-- Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration.
-- Triaxial Angular velocity from the gyroscope. 
-- A 561-feature vector with time and frequency domain variables. 
-- Its activity label. 
-- An identifier of the subject who carried out the experiment.
+- Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration. # These data are in the 'Inertial Signals' folder, which you can ignore
+- Triaxial Angular velocity from the gyroscope. # These data are in the 'Inertial Signals' folder, which you can ignore
 
-The dataset includes the following files:
-=========================================
+## The next sets are the data you want. Each row across the various files is attached to a particular subject and a particular activity.
 
-- 'README.txt'
+- A 561-feature vector with time and frequency domain variables. # for both of the test and train data sets. These are 'X_test.txt' and 'X_train.txt', respectively. These data are 'normalized', but also bounded within -1 to 1.
+- Its activity label. ### these are the names of the types of activities done by each participant for a given set of data (walking, etc). 
+- An identifier of the subject who carried out the experiment. ## these uniquely identify which data are associated with which participant: 'subject_train.txt' and 'subject_test.txt'
 
-- 'features_info.txt': Shows information about the variables used on the feature vector.
-
-- 'features.txt': List of all features.
-
-- 'activity_labels.txt': Links the class labels with their activity name.
-
-- 'train/X_train.txt': Training set.
-
-- 'train/y_train.txt': Training labels.
-
-- 'test/X_test.txt': Test set.
-
-- 'test/y_test.txt': Test labels.
-
-The following files are available for the train and test data. Their descriptions are equivalent. 
-
-- 'train/subject_train.txt': Each row identifies the subject who performed the activity for each window sample. Its range is from 1 to 30. 
-
-- 'train/Inertial Signals/total_acc_x_train.txt': The acceleration signal from the smartphone accelerometer X axis in standard gravity units 'g'. Every row shows a 128 element vector. The same description applies for the 'total_acc_x_train.txt' and 'total_acc_z_train.txt' files for the Y and Z axis. 
-
-- 'train/Inertial Signals/body_acc_x_train.txt': The body acceleration signal obtained by subtracting the gravity from the total acceleration. 
-
-- 'train/Inertial Signals/body_gyro_x_train.txt': The angular velocity vector measured by the gyroscope for each window sample. The units are radians/second. 
-
-Notes: 
-======
-- Features are normalized and bounded within [-1,1].
-- Each feature vector is a row on the text file.
-
-For more information about this dataset contact: activityrecognition@smartlab.ws
-
-License:
-========
-Use of this dataset in publications must be acknowledged by referencing the following publication [1] 
-
-[1] Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. Human Activity Recognition on Smartphones using a Multiclass Hardware-Friendly Support Vector Machine. International Workshop of Ambient Assisted Living (IWAAL 2012). Vitoria-Gasteiz, Spain. Dec 2012
-
-This dataset is distributed AS-IS and no responsibility implied or explicit can be addressed to the authors or their institutions for its use or misuse. Any commercial use is prohibited.
-
-Jorge L. Reyes-Ortiz, Alessandro Ghio, Luca Oneto, Davide Anguita. November 2012.
-
---------------------------------------------------------------------------------------------
-
-## I annotated the original code, and in the spirit of simplicity, I have just duplicated the code and the annotations here. The annotations identify the cleaning steps and are easy to associated with the relevant code.
-
-## lod the tidyverse to do most/all of the data cleaning 
-
-    library(tidyverse)
-
-### Set the working directory in the next line
-
-    setwd("THIS NEEDS TO BE UPDATED")
-
-### context data---------------------
-
-###create data frame for matching activity codes with activity names
-
-      training.types.key<-read_table("UCI HAR Dataset/activity_labels.txt", 
-                                     col_names = FALSE) %>%
-        rename(activity.type.code=X1, 
-               activity.type.name=X2)
+## the summary variable data generated by the researchers are the data in the 'X_train.txt' and 'X_test.txt' files. The names of these summary variables are available in:
+## 'features.txt'
 
 
-### create dataframe containing the measurement/summary variable codes
+### the description of the 'features' (i also call them summary variables) is shown next. The original authors provide a description of these features in the 'features_info.txt' file.
 
-      column.names<-read_table("UCI HAR Dataset/features.txt", 
-                                  col_names = FALSE) %>%
-  
-  ## give the column names an easy-to-remember name
-  
-    rename(column.names=2) %>%
-  
-  ## keep only the column names 
-  
-    dplyr::select(column.names) %>%
-  
-  ## get rid of the ugly characters
-  
-        mutate(column.names=str_remove_all(column.names, '-'),
-               column.names=str_remove_all(column.names, '\\('),
-               column.names=str_remove_all(column.names, ','),
-               column.names=str_remove_all(column.names, '\\)'))
+### the 561 original feature names were altered slightly in the code (I removed all the 'ugly' charcaters (brackets, hashes, commas) from the the 'features.txt' file) resulting in these variable names:
 
-#### compile the training data------------------------
+          [1] "tBodyAccmeanX"                     "tBodyAccmeanY"                     "tBodyAccmeanZ"                     "tBodyAccstdX"                     
+          [5] "tBodyAccstdY"                      "tBodyAccstdZ"                      "tBodyAccmadX"                      "tBodyAccmadY"                     
+          [9] "tBodyAccmadZ"                      "tBodyAccmaxX"                      "tBodyAccmaxY"                      "tBodyAccmaxZ"                     
+         [13] "tBodyAccminX"                      "tBodyAccminY"                      "tBodyAccminZ"                      "tBodyAccsma"                      
+         [17] "tBodyAccenergyX"                   "tBodyAccenergyY"                   "tBodyAccenergyZ"                   "tBodyAcciqrX"                     
+         [21] "tBodyAcciqrY"                      "tBodyAcciqrZ"                      "tBodyAccentropyX"                  "tBodyAccentropyY"                 
+         [25] "tBodyAccentropyZ"                  "tBodyAccarCoeffX1"                 "tBodyAccarCoeffX2"                 "tBodyAccarCoeffX3"                
+         [29] "tBodyAccarCoeffX4"                 "tBodyAccarCoeffY1"                 "tBodyAccarCoeffY2"                 "tBodyAccarCoeffY3"                
+         [33] "tBodyAccarCoeffY4"                 "tBodyAccarCoeffZ1"                 "tBodyAccarCoeffZ2"                 "tBodyAccarCoeffZ3"                
+         [37] "tBodyAccarCoeffZ4"                 "tBodyAcccorrelationXY"             "tBodyAcccorrelationXZ"             "tBodyAcccorrelationYZ"            
+         [41] "tGravityAccmeanX"                  "tGravityAccmeanY"                  "tGravityAccmeanZ"                  "tGravityAccstdX"                  
+         [45] "tGravityAccstdY"                   "tGravityAccstdZ"                   "tGravityAccmadX"                   "tGravityAccmadY"                  
+         [49] "tGravityAccmadZ"                   "tGravityAccmaxX"                   "tGravityAccmaxY"                   "tGravityAccmaxZ"                  
+         [53] "tGravityAccminX"                   "tGravityAccminY"                   "tGravityAccminZ"                   "tGravityAccsma"                   
+         [57] "tGravityAccenergyX"                "tGravityAccenergyY"                "tGravityAccenergyZ"                "tGravityAcciqrX"                  
+         [61] "tGravityAcciqrY"                   "tGravityAcciqrZ"                   "tGravityAccentropyX"               "tGravityAccentropyY"              
+         [65] "tGravityAccentropyZ"               "tGravityAccarCoeffX1"              "tGravityAccarCoeffX2"              "tGravityAccarCoeffX3"             
+         [69] "tGravityAccarCoeffX4"              "tGravityAccarCoeffY1"              "tGravityAccarCoeffY2"              "tGravityAccarCoeffY3"             
+         [73] "tGravityAccarCoeffY4"              "tGravityAccarCoeffZ1"              "tGravityAccarCoeffZ2"              "tGravityAccarCoeffZ3"             
+         [77] "tGravityAccarCoeffZ4"              "tGravityAcccorrelationXY"          "tGravityAcccorrelationXZ"          "tGravityAcccorrelationYZ"         
+         [81] "tBodyAccJerkmeanX"                 "tBodyAccJerkmeanY"                 "tBodyAccJerkmeanZ"                 "tBodyAccJerkstdX"                 
+         [85] "tBodyAccJerkstdY"                  "tBodyAccJerkstdZ"                  "tBodyAccJerkmadX"                  "tBodyAccJerkmadY"                 
+         [89] "tBodyAccJerkmadZ"                  "tBodyAccJerkmaxX"                  "tBodyAccJerkmaxY"                  "tBodyAccJerkmaxZ"                 
+         [93] "tBodyAccJerkminX"                  "tBodyAccJerkminY"                  "tBodyAccJerkminZ"                  "tBodyAccJerksma"                  
+         [97] "tBodyAccJerkenergyX"               "tBodyAccJerkenergyY"               "tBodyAccJerkenergyZ"               "tBodyAccJerkiqrX"                 
+        [101] "tBodyAccJerkiqrY"                  "tBodyAccJerkiqrZ"                  "tBodyAccJerkentropyX"              "tBodyAccJerkentropyY"             
+        [105] "tBodyAccJerkentropyZ"              "tBodyAccJerkarCoeffX1"             "tBodyAccJerkarCoeffX2"             "tBodyAccJerkarCoeffX3"            
+        [109] "tBodyAccJerkarCoeffX4"             "tBodyAccJerkarCoeffY1"             "tBodyAccJerkarCoeffY2"             "tBodyAccJerkarCoeffY3"            
+        [113] "tBodyAccJerkarCoeffY4"             "tBodyAccJerkarCoeffZ1"             "tBodyAccJerkarCoeffZ2"             "tBodyAccJerkarCoeffZ3"            
+        [117] "tBodyAccJerkarCoeffZ4"             "tBodyAccJerkcorrelationXY"         "tBodyAccJerkcorrelationXZ"         "tBodyAccJerkcorrelationYZ"        
+        [121] "tBodyGyromeanX"                    "tBodyGyromeanY"                    "tBodyGyromeanZ"                    "tBodyGyrostdX"                    
+        [125] "tBodyGyrostdY"                     "tBodyGyrostdZ"                     "tBodyGyromadX"                     "tBodyGyromadY"                    
+        [129] "tBodyGyromadZ"                     "tBodyGyromaxX"                     "tBodyGyromaxY"                     "tBodyGyromaxZ"                    
+        [133] "tBodyGyrominX"                     "tBodyGyrominY"                     "tBodyGyrominZ"                     "tBodyGyrosma"                     
+        [137] "tBodyGyroenergyX"                  "tBodyGyroenergyY"                  "tBodyGyroenergyZ"                  "tBodyGyroiqrX"                    
+        [141] "tBodyGyroiqrY"                     "tBodyGyroiqrZ"                     "tBodyGyroentropyX"                 "tBodyGyroentropyY"                
+        [145] "tBodyGyroentropyZ"                 "tBodyGyroarCoeffX1"                "tBodyGyroarCoeffX2"                "tBodyGyroarCoeffX3"               
+        [149] "tBodyGyroarCoeffX4"                "tBodyGyroarCoeffY1"                "tBodyGyroarCoeffY2"                "tBodyGyroarCoeffY3"               
+        [153] "tBodyGyroarCoeffY4"                "tBodyGyroarCoeffZ1"                "tBodyGyroarCoeffZ2"                "tBodyGyroarCoeffZ3"               
+        [157] "tBodyGyroarCoeffZ4"                "tBodyGyrocorrelationXY"            "tBodyGyrocorrelationXZ"            "tBodyGyrocorrelationYZ"           
+        [161] "tBodyGyroJerkmeanX"                "tBodyGyroJerkmeanY"                "tBodyGyroJerkmeanZ"                "tBodyGyroJerkstdX"                
+        [165] "tBodyGyroJerkstdY"                 "tBodyGyroJerkstdZ"                 "tBodyGyroJerkmadX"                 "tBodyGyroJerkmadY"                
+        [169] "tBodyGyroJerkmadZ"                 "tBodyGyroJerkmaxX"                 "tBodyGyroJerkmaxY"                 "tBodyGyroJerkmaxZ"                
+        [173] "tBodyGyroJerkminX"                 "tBodyGyroJerkminY"                 "tBodyGyroJerkminZ"                 "tBodyGyroJerksma"                 
+        [177] "tBodyGyroJerkenergyX"              "tBodyGyroJerkenergyY"              "tBodyGyroJerkenergyZ"              "tBodyGyroJerkiqrX"                
+        [181] "tBodyGyroJerkiqrY"                 "tBodyGyroJerkiqrZ"                 "tBodyGyroJerkentropyX"             "tBodyGyroJerkentropyY"            
+        [185] "tBodyGyroJerkentropyZ"             "tBodyGyroJerkarCoeffX1"            "tBodyGyroJerkarCoeffX2"            "tBodyGyroJerkarCoeffX3"           
+        [189] "tBodyGyroJerkarCoeffX4"            "tBodyGyroJerkarCoeffY1"            "tBodyGyroJerkarCoeffY2"            "tBodyGyroJerkarCoeffY3"           
+        [193] "tBodyGyroJerkarCoeffY4"            "tBodyGyroJerkarCoeffZ1"            "tBodyGyroJerkarCoeffZ2"            "tBodyGyroJerkarCoeffZ3"           
+        [197] "tBodyGyroJerkarCoeffZ4"            "tBodyGyroJerkcorrelationXY"        "tBodyGyroJerkcorrelationXZ"        "tBodyGyroJerkcorrelationYZ"       
+        [201] "tBodyAccMagmean"                   "tBodyAccMagstd"                    "tBodyAccMagmad"                    "tBodyAccMagmax"                   
+        [205] "tBodyAccMagmin"                    "tBodyAccMagsma"                    "tBodyAccMagenergy"                 "tBodyAccMagiqr"                   
+        [209] "tBodyAccMagentropy"                "tBodyAccMagarCoeff1"               "tBodyAccMagarCoeff2"               "tBodyAccMagarCoeff3"              
+        [213] "tBodyAccMagarCoeff4"               "tGravityAccMagmean"                "tGravityAccMagstd"                 "tGravityAccMagmad"                
+        [217] "tGravityAccMagmax"                 "tGravityAccMagmin"                 "tGravityAccMagsma"                 "tGravityAccMagenergy"             
+        [221] "tGravityAccMagiqr"                 "tGravityAccMagentropy"             "tGravityAccMagarCoeff1"            "tGravityAccMagarCoeff2"           
+        [225] "tGravityAccMagarCoeff3"            "tGravityAccMagarCoeff4"            "tBodyAccJerkMagmean"               "tBodyAccJerkMagstd"               
+        [229] "tBodyAccJerkMagmad"                "tBodyAccJerkMagmax"                "tBodyAccJerkMagmin"                "tBodyAccJerkMagsma"               
+        [233] "tBodyAccJerkMagenergy"             "tBodyAccJerkMagiqr"                "tBodyAccJerkMagentropy"            "tBodyAccJerkMagarCoeff1"          
+        [237] "tBodyAccJerkMagarCoeff2"           "tBodyAccJerkMagarCoeff3"           "tBodyAccJerkMagarCoeff4"           "tBodyGyroMagmean"                 
+        [241] "tBodyGyroMagstd"                   "tBodyGyroMagmad"                   "tBodyGyroMagmax"                   "tBodyGyroMagmin"                  
+        [245] "tBodyGyroMagsma"                   "tBodyGyroMagenergy"                "tBodyGyroMagiqr"                   "tBodyGyroMagentropy"              
+        [249] "tBodyGyroMagarCoeff1"              "tBodyGyroMagarCoeff2"              "tBodyGyroMagarCoeff3"              "tBodyGyroMagarCoeff4"             
+        [253] "tBodyGyroJerkMagmean"              "tBodyGyroJerkMagstd"               "tBodyGyroJerkMagmad"               "tBodyGyroJerkMagmax"              
+        [257] "tBodyGyroJerkMagmin"               "tBodyGyroJerkMagsma"               "tBodyGyroJerkMagenergy"            "tBodyGyroJerkMagiqr"              
+        [261] "tBodyGyroJerkMagentropy"           "tBodyGyroJerkMagarCoeff1"          "tBodyGyroJerkMagarCoeff2"          "tBodyGyroJerkMagarCoeff3"         
+        [265] "tBodyGyroJerkMagarCoeff4"          "fBodyAccmeanX"                     "fBodyAccmeanY"                     "fBodyAccmeanZ"                    
+        [269] "fBodyAccstdX"                      "fBodyAccstdY"                      "fBodyAccstdZ"                      "fBodyAccmadX"                     
+        [273] "fBodyAccmadY"                      "fBodyAccmadZ"                      "fBodyAccmaxX"                      "fBodyAccmaxY"                     
+        [277] "fBodyAccmaxZ"                      "fBodyAccminX"                      "fBodyAccminY"                      "fBodyAccminZ"                     
+        [281] "fBodyAccsma"                       "fBodyAccenergyX"                   "fBodyAccenergyY"                   "fBodyAccenergyZ"                  
+        [285] "fBodyAcciqrX"                      "fBodyAcciqrY"                      "fBodyAcciqrZ"                      "fBodyAccentropyX"                 
+        [289] "fBodyAccentropyY"                  "fBodyAccentropyZ"                  "fBodyAccmaxIndsX"                  "fBodyAccmaxIndsY"                 
+        [293] "fBodyAccmaxIndsZ"                  "fBodyAccmeanFreqX"                 "fBodyAccmeanFreqY"                 "fBodyAccmeanFreqZ"                
+        [297] "fBodyAccskewnessX"                 "fBodyAcckurtosisX"                 "fBodyAccskewnessY"                 "fBodyAcckurtosisY"                
+        [301] "fBodyAccskewnessZ"                 "fBodyAcckurtosisZ"                 "fBodyAccbandsEnergy18"             "fBodyAccbandsEnergy916"           
+        [305] "fBodyAccbandsEnergy1724"           "fBodyAccbandsEnergy2532"           "fBodyAccbandsEnergy3340"           "fBodyAccbandsEnergy4148"          
+        [309] "fBodyAccbandsEnergy4956"           "fBodyAccbandsEnergy5764"           "fBodyAccbandsEnergy116"            "fBodyAccbandsEnergy1732"          
+        [313] "fBodyAccbandsEnergy3348"           "fBodyAccbandsEnergy4964"           "fBodyAccbandsEnergy124"            "fBodyAccbandsEnergy2548"          
+        [317] "fBodyAccbandsEnergy18"             "fBodyAccbandsEnergy916"            "fBodyAccbandsEnergy1724"           "fBodyAccbandsEnergy2532"          
+        [321] "fBodyAccbandsEnergy3340"           "fBodyAccbandsEnergy4148"           "fBodyAccbandsEnergy4956"           "fBodyAccbandsEnergy5764"          
+        [325] "fBodyAccbandsEnergy116"            "fBodyAccbandsEnergy1732"           "fBodyAccbandsEnergy3348"           "fBodyAccbandsEnergy4964"          
+        [329] "fBodyAccbandsEnergy124"            "fBodyAccbandsEnergy2548"           "fBodyAccbandsEnergy18"             "fBodyAccbandsEnergy916"           
+        [333] "fBodyAccbandsEnergy1724"           "fBodyAccbandsEnergy2532"           "fBodyAccbandsEnergy3340"           "fBodyAccbandsEnergy4148"          
+        [337] "fBodyAccbandsEnergy4956"           "fBodyAccbandsEnergy5764"           "fBodyAccbandsEnergy116"            "fBodyAccbandsEnergy1732"          
+        [341] "fBodyAccbandsEnergy3348"           "fBodyAccbandsEnergy4964"           "fBodyAccbandsEnergy124"            "fBodyAccbandsEnergy2548"          
+        [345] "fBodyAccJerkmeanX"                 "fBodyAccJerkmeanY"                 "fBodyAccJerkmeanZ"                 "fBodyAccJerkstdX"                 
+        [349] "fBodyAccJerkstdY"                  "fBodyAccJerkstdZ"                  "fBodyAccJerkmadX"                  "fBodyAccJerkmadY"                 
+        [353] "fBodyAccJerkmadZ"                  "fBodyAccJerkmaxX"                  "fBodyAccJerkmaxY"                  "fBodyAccJerkmaxZ"                 
+        [357] "fBodyAccJerkminX"                  "fBodyAccJerkminY"                  "fBodyAccJerkminZ"                  "fBodyAccJerksma"                  
+        [361] "fBodyAccJerkenergyX"               "fBodyAccJerkenergyY"               "fBodyAccJerkenergyZ"               "fBodyAccJerkiqrX"                 
+        [365] "fBodyAccJerkiqrY"                  "fBodyAccJerkiqrZ"                  "fBodyAccJerkentropyX"              "fBodyAccJerkentropyY"             
+        [369] "fBodyAccJerkentropyZ"              "fBodyAccJerkmaxIndsX"              "fBodyAccJerkmaxIndsY"              "fBodyAccJerkmaxIndsZ"             
+        [373] "fBodyAccJerkmeanFreqX"             "fBodyAccJerkmeanFreqY"             "fBodyAccJerkmeanFreqZ"             "fBodyAccJerkskewnessX"            
+        [377] "fBodyAccJerkkurtosisX"             "fBodyAccJerkskewnessY"             "fBodyAccJerkkurtosisY"             "fBodyAccJerkskewnessZ"            
+        [381] "fBodyAccJerkkurtosisZ"             "fBodyAccJerkbandsEnergy18"         "fBodyAccJerkbandsEnergy916"        "fBodyAccJerkbandsEnergy1724"      
+        [385] "fBodyAccJerkbandsEnergy2532"       "fBodyAccJerkbandsEnergy3340"       "fBodyAccJerkbandsEnergy4148"       "fBodyAccJerkbandsEnergy4956"      
+        [389] "fBodyAccJerkbandsEnergy5764"       "fBodyAccJerkbandsEnergy116"        "fBodyAccJerkbandsEnergy1732"       "fBodyAccJerkbandsEnergy3348"      
+        [393] "fBodyAccJerkbandsEnergy4964"       "fBodyAccJerkbandsEnergy124"        "fBodyAccJerkbandsEnergy2548"       "fBodyAccJerkbandsEnergy18"        
+        [397] "fBodyAccJerkbandsEnergy916"        "fBodyAccJerkbandsEnergy1724"       "fBodyAccJerkbandsEnergy2532"       "fBodyAccJerkbandsEnergy3340"      
+        [401] "fBodyAccJerkbandsEnergy4148"       "fBodyAccJerkbandsEnergy4956"       "fBodyAccJerkbandsEnergy5764"       "fBodyAccJerkbandsEnergy116"       
+        [405] "fBodyAccJerkbandsEnergy1732"       "fBodyAccJerkbandsEnergy3348"       "fBodyAccJerkbandsEnergy4964"       "fBodyAccJerkbandsEnergy124"       
+        [409] "fBodyAccJerkbandsEnergy2548"       "fBodyAccJerkbandsEnergy18"         "fBodyAccJerkbandsEnergy916"        "fBodyAccJerkbandsEnergy1724"      
+        [413] "fBodyAccJerkbandsEnergy2532"       "fBodyAccJerkbandsEnergy3340"       "fBodyAccJerkbandsEnergy4148"       "fBodyAccJerkbandsEnergy4956"      
+        [417] "fBodyAccJerkbandsEnergy5764"       "fBodyAccJerkbandsEnergy116"        "fBodyAccJerkbandsEnergy1732"       "fBodyAccJerkbandsEnergy3348"      
+        [421] "fBodyAccJerkbandsEnergy4964"       "fBodyAccJerkbandsEnergy124"        "fBodyAccJerkbandsEnergy2548"       "fBodyGyromeanX"                   
+        [425] "fBodyGyromeanY"                    "fBodyGyromeanZ"                    "fBodyGyrostdX"                     "fBodyGyrostdY"                    
+        [429] "fBodyGyrostdZ"                     "fBodyGyromadX"                     "fBodyGyromadY"                     "fBodyGyromadZ"                    
+        [433] "fBodyGyromaxX"                     "fBodyGyromaxY"                     "fBodyGyromaxZ"                     "fBodyGyrominX"                    
+        [437] "fBodyGyrominY"                     "fBodyGyrominZ"                     "fBodyGyrosma"                      "fBodyGyroenergyX"                 
+        [441] "fBodyGyroenergyY"                  "fBodyGyroenergyZ"                  "fBodyGyroiqrX"                     "fBodyGyroiqrY"                    
+        [445] "fBodyGyroiqrZ"                     "fBodyGyroentropyX"                 "fBodyGyroentropyY"                 "fBodyGyroentropyZ"                
+        [449] "fBodyGyromaxIndsX"                 "fBodyGyromaxIndsY"                 "fBodyGyromaxIndsZ"                 "fBodyGyromeanFreqX"               
+        [453] "fBodyGyromeanFreqY"                "fBodyGyromeanFreqZ"                "fBodyGyroskewnessX"                "fBodyGyrokurtosisX"               
+        [457] "fBodyGyroskewnessY"                "fBodyGyrokurtosisY"                "fBodyGyroskewnessZ"                "fBodyGyrokurtosisZ"               
+        [461] "fBodyGyrobandsEnergy18"            "fBodyGyrobandsEnergy916"           "fBodyGyrobandsEnergy1724"          "fBodyGyrobandsEnergy2532"         
+        [465] "fBodyGyrobandsEnergy3340"          "fBodyGyrobandsEnergy4148"          "fBodyGyrobandsEnergy4956"          "fBodyGyrobandsEnergy5764"         
+        [469] "fBodyGyrobandsEnergy116"           "fBodyGyrobandsEnergy1732"          "fBodyGyrobandsEnergy3348"          "fBodyGyrobandsEnergy4964"         
+        [473] "fBodyGyrobandsEnergy124"           "fBodyGyrobandsEnergy2548"          "fBodyGyrobandsEnergy18"            "fBodyGyrobandsEnergy916"          
+        [477] "fBodyGyrobandsEnergy1724"          "fBodyGyrobandsEnergy2532"          "fBodyGyrobandsEnergy3340"          "fBodyGyrobandsEnergy4148"         
+        [481] "fBodyGyrobandsEnergy4956"          "fBodyGyrobandsEnergy5764"          "fBodyGyrobandsEnergy116"           "fBodyGyrobandsEnergy1732"         
+        [485] "fBodyGyrobandsEnergy3348"          "fBodyGyrobandsEnergy4964"          "fBodyGyrobandsEnergy124"           "fBodyGyrobandsEnergy2548"         
+        [489] "fBodyGyrobandsEnergy18"            "fBodyGyrobandsEnergy916"           "fBodyGyrobandsEnergy1724"          "fBodyGyrobandsEnergy2532"         
+        [493] "fBodyGyrobandsEnergy3340"          "fBodyGyrobandsEnergy4148"          "fBodyGyrobandsEnergy4956"          "fBodyGyrobandsEnergy5764"         
+        [497] "fBodyGyrobandsEnergy116"           "fBodyGyrobandsEnergy1732"          "fBodyGyrobandsEnergy3348"          "fBodyGyrobandsEnergy4964"         
+        [501] "fBodyGyrobandsEnergy124"           "fBodyGyrobandsEnergy2548"          "fBodyAccMagmean"                   "fBodyAccMagstd"                   
+        [505] "fBodyAccMagmad"                    "fBodyAccMagmax"                    "fBodyAccMagmin"                    "fBodyAccMagsma"                   
+        [509] "fBodyAccMagenergy"                 "fBodyAccMagiqr"                    "fBodyAccMagentropy"                "fBodyAccMagmaxInds"               
+        [513] "fBodyAccMagmeanFreq"               "fBodyAccMagskewness"               "fBodyAccMagkurtosis"               "fBodyBodyAccJerkMagmean"          
+        [517] "fBodyBodyAccJerkMagstd"            "fBodyBodyAccJerkMagmad"            "fBodyBodyAccJerkMagmax"            "fBodyBodyAccJerkMagmin"           
+        [521] "fBodyBodyAccJerkMagsma"            "fBodyBodyAccJerkMagenergy"         "fBodyBodyAccJerkMagiqr"            "fBodyBodyAccJerkMagentropy"       
+        [525] "fBodyBodyAccJerkMagmaxInds"        "fBodyBodyAccJerkMagmeanFreq"       "fBodyBodyAccJerkMagskewness"       "fBodyBodyAccJerkMagkurtosis"      
+        [529] "fBodyBodyGyroMagmean"              "fBodyBodyGyroMagstd"               "fBodyBodyGyroMagmad"               "fBodyBodyGyroMagmax"              
+        [533] "fBodyBodyGyroMagmin"               "fBodyBodyGyroMagsma"               "fBodyBodyGyroMagenergy"            "fBodyBodyGyroMagiqr"              
+        [537] "fBodyBodyGyroMagentropy"           "fBodyBodyGyroMagmaxInds"           "fBodyBodyGyroMagmeanFreq"          "fBodyBodyGyroMagskewness"         
+        [541] "fBodyBodyGyroMagkurtosis"          "fBodyBodyGyroJerkMagmean"          "fBodyBodyGyroJerkMagstd"           "fBodyBodyGyroJerkMagmad"          
+        [545] "fBodyBodyGyroJerkMagmax"           "fBodyBodyGyroJerkMagmin"           "fBodyBodyGyroJerkMagsma"           "fBodyBodyGyroJerkMagenergy"       
+        [549] "fBodyBodyGyroJerkMagiqr"           "fBodyBodyGyroJerkMagentropy"       "fBodyBodyGyroJerkMagmaxInds"       "fBodyBodyGyroJerkMagmeanFreq"     
+        [553] "fBodyBodyGyroJerkMagskewness"      "fBodyBodyGyroJerkMagkurtosis"      "angletBodyAccMeangravity"          "angletBodyAccJerkMeangravityMean" 
+        [557] "angletBodyGyroMeangravityMean"     "angletBodyGyroJerkMeangravityMean" "angleXgravityMean"                 "angleYgravityMean"                
+        [561] "angleZgravityMean"    
 
-## load the subject number codes 
+## the final meand and std variables were:
 
-    train.subject <- read_table("UCI HAR Dataset/train/subject_train.txt", col_names = FALSE)
+      colnames(mean.subject.activity)
 
-## load the activity code variable
-  
-    activity.type.code.train <- read_table("UCI HAR Dataset/train/y_train.txt", col_names = FALSE)
-
-## load the summarized measurements and attach the column names obtained above
-
-    compiled.train.data <- read_table("UCI HAR Dataset/train/X_train.txt", 
-                                   col_names = column.names$column.names)%>% 
-  
-  ## retain only the columns with means or standard deviations (std)
-          
-          dplyr::select(contains('mean') | contains('std')) %>%
-  
-  ## create new variable: data set type
-  
-          mutate(data.type='train',
-         
-  ## append the subject code number and the activity type code
-         
-         subject=train.subject$X1,
-         activity.type.code=activity.type.code.train$X1) %>%
-  
-  ## join the activity type name to dataframe
-        
-    left_join(training.types.key, by='activity.type.code') %>%
-  
-    ##re-order columns with identifying columns first
-    dplyr::select(data.type, subject, activity.type.code, activity.type.name, 
-                  tBodyAccmeanX:fBodyBodyGyroJerkMagstd)
-
-
-
-### compile test data-----------------------------
-
-## load the subject number codes 
-
-      test.subject <- read_table("UCI HAR Dataset/test/subject_test.txt", col_names = FALSE)
-
-## load the activity code variable
-      
-    activity.type.code.test <- read_table("UCI HAR Dataset/test/y_test.txt", col_names = FALSE)
-
-## load the summarized measurements and attach the column names obtained above
-
-    compiled.test.data <- read_table("UCI HAR Dataset/test/X_test.txt", 
-                         col_names = column.names$column.names)%>% 
-      
-      ## retain only the columns with means or standard deviations (std)
-      dplyr::select(contains('mean') | contains('std')) %>%
-      
-       ## create new variable: data set type
-      mutate(data.type='test',
-             
-     ## append the subject code number and the activity type code
-             subject=test.subject$X1,
-             activity.type.code=activity.type.code.test$X1) %>%
-      
-      ## join the activity type name to dataframe
-      left_join(training.types.key, by='activity.type.code') %>%
-      
-      ##re-order columns with identifying columns first
-      dplyr::select(data.type, subject, activity.type.code, activity.type.name, 
-                    tBodyAccmeanX:fBodyBodyGyroJerkMagstd)
+       [1] "tBodyAccmeanX"                     "tBodyAccmeanY"                     "tBodyAccmeanZ"                    
+       [4] "tGravityAccmeanX"                  "tGravityAccmeanY"                  "tGravityAccmeanZ"                 
+       [7] "tBodyAccJerkmeanX"                 "tBodyAccJerkmeanY"                 "tBodyAccJerkmeanZ"                
+      [10] "tBodyGyromeanX"                    "tBodyGyromeanY"                    "tBodyGyromeanZ"                   
+      [13] "tBodyGyroJerkmeanX"                "tBodyGyroJerkmeanY"                "tBodyGyroJerkmeanZ"               
+      [16] "tBodyAccMagmean"                   "tGravityAccMagmean"                "tBodyAccJerkMagmean"              
+      [19] "tBodyGyroMagmean"                  "tBodyGyroJerkMagmean"              "fBodyAccmeanX"                    
+      [22] "fBodyAccmeanY"                     "fBodyAccmeanZ"                     "fBodyAccmeanFreqX"                
+      [25] "fBodyAccmeanFreqY"                 "fBodyAccmeanFreqZ"                 "fBodyAccJerkmeanX"                
+      [28] "fBodyAccJerkmeanY"                 "fBodyAccJerkmeanZ"                 "fBodyAccJerkmeanFreqX"            
+      [31] "fBodyAccJerkmeanFreqY"             "fBodyAccJerkmeanFreqZ"             "fBodyGyromeanX"                   
+      [34] "fBodyGyromeanY"                    "fBodyGyromeanZ"                    "fBodyGyromeanFreqX"               
+      [37] "fBodyGyromeanFreqY"                "fBodyGyromeanFreqZ"                "fBodyAccMagmean"                  
+      [40] "fBodyAccMagmeanFreq"               "fBodyBodyAccJerkMagmean"           "fBodyBodyAccJerkMagmeanFreq"      
+      [43] "fBodyBodyGyroMagmean"              "fBodyBodyGyroMagmeanFreq"          "fBodyBodyGyroJerkMagmean"         
+      [46] "fBodyBodyGyroJerkMagmeanFreq"      "angletBodyAccMeangravity"          "angletBodyAccJerkMeangravityMean" 
+      [49] "angletBodyGyroMeangravityMean"     "angletBodyGyroJerkMeangravityMean" "angleXgravityMean"                
+      [52] "angleYgravityMean"                 "angleZgravityMean"                 "tBodyAccstdX"                     
+      [55] "tBodyAccstdY"                      "tBodyAccstdZ"                      "tGravityAccstdX"                  
+      [58] "tGravityAccstdY"                   "tGravityAccstdZ"                   "tBodyAccJerkstdX"                 
+      [61] "tBodyAccJerkstdY"                  "tBodyAccJerkstdZ"                  "tBodyGyrostdX"                    
+      [64] "tBodyGyrostdY"                     "tBodyGyrostdZ"                     "tBodyGyroJerkstdX"                
+      [67] "tBodyGyroJerkstdY"                 "tBodyGyroJerkstdZ"                 "tBodyAccMagstd"                   
+      [70] "tGravityAccMagstd"                 "tBodyAccJerkMagstd"                "tBodyGyroMagstd"                  
+      [73] "tBodyGyroJerkMagstd"               "fBodyAccstdX"                      "fBodyAccstdY"                     
+      [76] "fBodyAccstdZ"                      "fBodyAccJerkstdX"                  "fBodyAccJerkstdY"                 
+      [79] "fBodyAccJerkstdZ"                  "fBodyGyrostdX"                     "fBodyGyrostdY"                    
+      [82] "fBodyGyrostdZ"                     "fBodyAccMagstd"                    "fBodyBodyAccJerkMagstd"           
+      [85] "fBodyBodyGyroMagstd"               "fBodyBodyGyroJerkMagstd"     
 
 
-
-### compiling training and test data
-
-## bind the test and train data
-
-    all.mean.and.sd.data<-bind_rows(compiled.test.data, compiled.train.data) 
-
-
-### create summary means for each subject per activity (and ignoring training/test status)
-
-    mean.subject.activity <- all.mean.and.sd.data %>%
-      group_by(subject, activity.type.name) %>%
-      dplyr::select(-c(data.type, activity.type.code)) %>%
-      summarize_all(mean)
+### the script associated with this codebook (run_analysis.R) is also fully annotated descriing each step.
